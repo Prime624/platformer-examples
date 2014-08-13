@@ -115,11 +115,15 @@ class Player(pygame.sprite.Sprite):
  
 	def update(self):
 		""" Move the player. """
-		### Readies sprite for bounce.
+		### If player isn't bouncing...
 		if self.bouncing<1:
+			### ...and he's moving down...
 			if self.change_y>0:
+				### ...set bounce state to ready...
 				self.bouncing=0
+				### ...and he will be bouncing on his bottom.
 				self.bounce_bottom=True
+			### (do opposite if going up)
 			elif self.change_y<0:
 				self.bouncing=0
 				self.bounce_bottom=False
@@ -127,10 +131,13 @@ class Player(pygame.sprite.Sprite):
 		# Gravity
 		self.calc_grav()
 		
-		### Stops bounce effect.
+		### If has been bouncing longer than should be...
 		if self.bouncing>self.bounce_duration:
+			### ...stop bounce...
 			self.bouncing=-1
+			### ...upause gravity (if it was paused)...
 			self.pause_grav=False
+			### ...and set framerate back to normal.
 			self.tick_tock=self.tick_tock_fast
 		 
 		# Move left/right
@@ -138,11 +145,11 @@ class Player(pygame.sprite.Sprite):
 		pos = self.rect.x + self.level.world_shift
 		if self.direction == "R":
 			frame = (pos // 30) % len(self.walking_frames_r)
-			### Draws character.
+			### Draws character with correct squish factor and direction.
 			self.image = squish(self.walking_frames_r[frame],self.squish_factor[self.bouncing+1])
 		else:
 			frame = (pos // 30) % len(self.walking_frames_l)
-			### Draws character.
+			### Draws character with correct squish factor and direction.
 			self.image = squish(self.walking_frames_l[frame],self.squish_factor[self.bouncing+1])
 		
 		### If its height isn't the correct height...
@@ -175,17 +182,21 @@ class Player(pygame.sprite.Sprite):
 			# Reset our position based on the top/bottom of the object.
 			if self.change_y > 0:
 				self.rect.bottom = block.rect.top
-				### Keeps timing bounce if player has recently landed on a platform...
+				### If player has recently landed on a platform...
 				if self.bouncing>-1:
+					### ...progress bounce state...
 					self.bouncing+=1
+					### ...set is bouncing on bottom (just in case it isn't already)...
 					self.bounce_bottom=True
+					### ...and set the framerate to the slower number.
 					self.tick_tock=self.tick_tock_slow
 			elif self.change_y < 0:
 				self.rect.top = block.rect.bottom
-				### ...hit the bottom of one.
+				### Do the same if bouncing on head...
 				if self.bouncing>-1:
 					self.bouncing+=1
 					self.bounce_bottom=False
+					### ...additionally pausing gravity.
 					self.pause_grav=True
 					self.tick_tock=self.tick_tock_slow
  
@@ -209,7 +220,7 @@ class Player(pygame.sprite.Sprite):
 		if self.rect.y >= constants.SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
 			self.change_y = 0
 			self.rect.y = constants.SCREEN_HEIGHT - self.rect.height
-			### Keeps timing bounce if player has recently landed on ground.
+			### Same thing as if player has landed on platform (see line 185).
 			if self.bouncing>-1:
 				self.bouncing+=1
 				self.bounce_bottom=True
@@ -252,7 +263,9 @@ class Player(pygame.sprite.Sprite):
 
 ### Method to "squish" images by a certain factor.
 def squish(image,factor):
+	### If true, player will be stretched instead of squished. Doesn't look very good.
 	stretch_instead_of_squish=False
+	### Can't divide by 0, so just return original image. Else, see formula.
 	if factor==0:
 		return image
 	elif not stretch_instead_of_squish:
