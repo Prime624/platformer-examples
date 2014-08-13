@@ -26,15 +26,30 @@ class Player(pygame.sprite.Sprite):
 	# What direction is the player facing?
 	direction = "R"
 	
-	### Variables for bouncing effect. First 2 numbers in squish_factor must be 0.
+	### This variable represents the stage in the squish animation that the player is currently in.
+	### -1 is not ready to bounce, 0 is ready but not started, and 1+ is mid-bounce.
 	bouncing=0
+	### True if bouncing from the bottom, false if bouncing on the head.
 	bounce_bottom=True
+	### This is used so that when the player bumps a ceiling, he won't fall down until he is done bouncing.
+	### Gravity doesn't look paused in the game.
 	pause_grav=False
-	height_squish=[]
+	### Factor to squish by at each stage. Formula is at bottom of file. Change to stretch also down there.
+	### The first two numbers should be 0. They are for when the character isn't bouncing.
+	### You CAN CHANGE the other numbers to your liking.
 	squish_factor=[0,0,13,9,6,4,6,9,13]
+	### Keeps track of the height of the character at different stages in the bounce. Saves unneccessary calculations.
+	height_squish=[]
+	### The bounce will last for the amount of squishes (in frames)(-2 for when not squished).
 	bounce_duration=len(squish_factor)-2
+	### The following three variables slow down the framerate slightly when bouncing.
+	### The effect does not look slowed down, but it exaggerates the bounce in a good way.
+	### These specific numbers look the best to me, but CAN BE CHANGED to exaggerate the effect.
+	### The framerate at regular speed.
 	tick_tock_fast=60
+	### The framerate when bouncing.
 	tick_tock_slow=50
+	### The framerate will begin at normal speed.
 	tick_tock=tick_tock_fast
  
 	# List of sprites we can bump against
@@ -93,6 +108,7 @@ class Player(pygame.sprite.Sprite):
  
 		# Set a reference to the image rect.
 		self.rect = self.image.get_rect()
+		### Keeps track of heights of character.
 		self.height_orig=self.rect.height
 		for i in range(len(self.squish_factor)):
 			self.height_squish.append(squish(self.image,self.squish_factor[i]).get_rect().height)
